@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/hashicorp/terraform-provider-scaffolding-framework/internal/helpers"
 	"strconv"
+	"terraform-provider-elastic-siem/internal/helpers"
 	"time"
 
 	"encoding/json"
@@ -177,6 +177,7 @@ func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
+	// Process the rule content
 	body, err := extractRuleFronYAMLStrgin(ctx, data.RuleContent.String())
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
@@ -221,6 +222,7 @@ func (r *DetectionRuleResource) Read(ctx context.Context, req resource.ReadReque
 
 func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *DetectionRuleResourceModel
+	var body *DetectionRule
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -229,13 +231,21 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update example, got error: %s", err))
-	//     return
-	// }
+	// Process the rule content
+	body, err := extractRuleFronYAMLStrgin(ctx, data.RuleContent.String())
+	if err != nil {
+		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
+		return
+	}
+
+	body.ID = data.Id.String()
+
+	// Create the rule through API
+	var response DetectionRuleResponse
+	if err := r.client.Put("/detection_engine/rules", body, &response); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
+		return
+	}
 
 	// Save updated data into Terraform state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
@@ -251,13 +261,12 @@ func (r *DetectionRuleResource) Delete(ctx context.Context, req resource.DeleteR
 		return
 	}
 
-	// If applicable, this is a great opportunity to initialize any necessary
-	// provider client data and make a call using it.
-	// httpResp, err := r.client.Do(httpReq)
-	// if err != nil {
-	//     resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete example, got error: %s", err))
-	//     return
-	// }
+	// Get the rule through the API
+	path := fmt.Sprintf("/detection_engine/rules?id=%s", data.Id)
+	if err := r.client.Delete(path); err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: %s", err))
+		return
+	}
 }
 
 func (r *DetectionRuleResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

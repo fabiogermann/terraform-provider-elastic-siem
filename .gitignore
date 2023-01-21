@@ -4,6 +4,7 @@
 example.tf
 terraform.tfplan
 terraform.tfstate
+terraform-provider-elastic-siem
 bin/
 dist/
 modules-dev/

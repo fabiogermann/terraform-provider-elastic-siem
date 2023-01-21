@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-provider-scaffolding-framework/internal/helpers"
+	"terraform-provider-elastic-siem/internal/helpers"
 )
 
 // Ensure ElasticSiemProvider satisfies various provider interfaces.
