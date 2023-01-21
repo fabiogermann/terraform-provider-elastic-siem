@@ -132,12 +132,12 @@ func (r *DetectionRuleResource) Schema(ctx context.Context, req resource.SchemaR
 
 		Attributes: map[string]schema.Attribute{
 			"rule_content": schema.StringAttribute{
-				MarkdownDescription: "The content of the rule",
+				MarkdownDescription: "The content of the rule (JSON encoded string)",
 				Required:            true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Rule identifier",
+				MarkdownDescription: "Rule identifier (in UUID format)",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

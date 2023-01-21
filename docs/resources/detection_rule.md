@@ -17,10 +17,10 @@ Detection rule resource
 
 ### Required
 
-- `rule_content` (String) The content of the rule
+- `rule_content` (String) The content of the rule (JSON encoded string)
 
 ### Read-Only
 
-- `id` (String) Rule identifier
+- `id` (String) Rule identifier (in UUID format)
 
 
