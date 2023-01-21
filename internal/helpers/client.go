@@ -174,7 +174,7 @@ func (c *Client) doRaw(method, path, contentType string, body *bytes.Buffer) (*b
 }
 
 func (e *ErrorResponse) String() string {
-	return fmt.Sprintf("%s\nCode: %t%s",
+	return fmt.Sprintf("%s\nCode: %d",
 		e.Message, e.StatusCode)
 }
 
