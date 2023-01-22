@@ -2,7 +2,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"strconv"
 	"terraform-provider-elastic-siem/internal/helpers"
 	"time"
 
@@ -29,7 +32,7 @@ type ExceptionItemResource struct {
 
 // ExceptionItemResourceModel describes the resource data model.
 type ExceptionItemResourceModel struct {
-	RuleContent types.String `tfsdk:"rule_content"`
+	RuleContent types.String `tfsdk:"exception_item_content"`
 	Id          types.String `tfsdk:"id"`
 }
 
@@ -39,7 +42,6 @@ type ExceptionItemResponse struct {
 	Comments     []ExceptionCommentsResponse `json:"comments,omitempty"`
 	CreatedAt    time.Time                   `json:"created_at,omitempty"`
 	CreatedBy    string                      `json:"created_by,omitempty"`
-	ID           string                      `json:"id,omitempty"`
 	TieBreakerID string                      `json:"tie_breaker_id,omitempty"`
 	UpdatedAt    time.Time                   `json:"updated_a,omitemptyt"`
 	UpdatedBy    string                      `json:"updated_by,omitempty"`
@@ -64,6 +66,7 @@ type ExceptionItemBase struct {
 		Type     string `json:"type,omitempty"`
 		Value    string `json:"value,omitempty"`
 	} `json:"entries,omitempty"`
+	ID            string   `json:"id,omitempty"`
 	ListID        string   `json:"list_id,omitempty"`
 	ItemID        string   `json:"item_id,omitempty"`
 	Name          string   `json:"name,omitempty"`
@@ -77,23 +80,40 @@ type ExceptionItem struct {
 	Comments []ExceptionComments `json:"comments,omitempty"`
 }
 
+func extractExceptionItemFronJSONStrging(ctx context.Context, yamlString string) (*ExceptionItem, error) {
+	result := ExceptionItem{}
+	tflog.Debug(ctx, yamlString)
+	s, err := strconv.Unquote(yamlString)
+	if err != nil {
+		tflog.Error(ctx, "Error in extractExceptionItemFronJSONStrging (0)")
+		return nil, err
+	}
+	err = json.Unmarshal([]byte(s), &result)
+	if err != nil {
+		tflog.Error(ctx, "Error in extractExceptionItemFronJSONStrging (1)")
+		return nil, err
+	}
+	tflog.Debug(ctx, result.Name)
+	return &result, nil
+}
+
 func (r *ExceptionItemResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_detection_rule"
+	resp.TypeName = req.ProviderTypeName + "_exception_item"
 }
 
 func (r *ExceptionItemResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "Detection rule resource",
+		MarkdownDescription: "Exception item resource",
 
 		Attributes: map[string]schema.Attribute{
-			"rule_content": schema.StringAttribute{
-				MarkdownDescription: "The content of the rule (JSON encoded string)",
+			"exception_item_content": schema.StringAttribute{
+				MarkdownDescription: "The content of the exception item (JSON encoded string)",
 				Required:            true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				MarkdownDescription: "Rule identifier (in UUID format)",
+				MarkdownDescription: "Exception item identifier (in UUID format)",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -134,11 +154,11 @@ func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Process the rule content
-	//body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.String())
-	//if err != nil {
-	//	resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
-	//	return
-	//}
+	body, err := extractExceptionItemFronJSONStrging(ctx, data.RuleContent.String())
+	if err != nil {
+		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
+		return
+	}
 
 	// Create the rule through API
 	var response ExceptionItemResponse
@@ -166,7 +186,7 @@ func (r *ExceptionItemResource) Read(ctx context.Context, req resource.ReadReque
 
 	// Get the rule through the API
 	var response ExceptionItemResponse
-	path := fmt.Sprintf("/exception_lists/items?id==%s", data.Id)
+	path := fmt.Sprintf("/exception_lists/items?id=%s", data.Id)
 	if err := r.client.Get(path, &response); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: %s", err))
 		return
@@ -188,13 +208,13 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Process the rule content
-	//body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.String())
-	//if err != nil {
-	//	resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
-	//	return
-	//}
+	body, err := extractExceptionItemFronJSONStrging(ctx, data.RuleContent.String())
+	if err != nil {
+		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
+		return
+	}
 
-	//body.ID = data.Id.String()
+	body.ID = data.Id.String()
 
 	// Create the rule through API
 	var response ExceptionItemResponse

@@ -118,6 +118,7 @@ func (p *ElasticSiemProvider) Configure(ctx context.Context, req provider.Config
 func (p *ElasticSiemProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewDetectionRuleResource,
+		NewExceptionItemResource,
 	}
 }
 
