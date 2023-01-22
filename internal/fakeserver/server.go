@@ -1,5 +1,11 @@
 package fakeserver
 
+/**
+	This code was copied from the repository: https://github.com/Mastercard/terraform-provider-restapi/
+	path: 'fakeserver/fakeserver.go'
+	It has been adapted to fit the testing needs of this project
+**/
+
 import (
 	"encoding/json"
 	"fmt"

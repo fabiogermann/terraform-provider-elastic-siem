@@ -1,5 +1,11 @@
 package fakeserver
 
+/**
+	This code was copied from the repository: https://github.com/Mastercard/terraform-provider-restapi/
+	path: 'restapi/api_client.go'
+	It has been adapted to fit the testing needs of this project
+**/
+
 import (
 	"bytes"
 	"crypto/tls"

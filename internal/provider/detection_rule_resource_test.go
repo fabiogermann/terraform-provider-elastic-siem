@@ -66,25 +66,25 @@ func TestAccDetectionRuleResource(t *testing.T) {
 					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", generateTestRule()),
 				),
 			},
-			//// ImportState testing
-			//{
-			//	ResourceName:      "elastic-siem_detection_rule.test",
-			//	ImportState:       true,
-			//	ImportStateVerify: true,
-			//	// This is not normally necessary, but is here because this
-			//	// example code does not have an actual upstream service.
-			//	// Once the Read method is able to refresh information from
-			//	// the upstream service, this can be removed.
-			//	ImportStateVerifyIgnore: []string{"rule_content"},
-			//},
-			//// Update and Read testing
-			//{
-			//	Config: testAccDetectionRuleResourceConfig(generateTestRule()),
-			//	Check: resource.ComposeAggregateTestCheckFunc(
-			//		resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", "two"),
-			//	),
-			//},
-			//// Delete testing automatically occurs in TestCase
+			// ImportState testing
+			{
+				ResourceName:      "elastic-siem_detection_rule.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// This is not normally necessary, but is here because this
+				// example code does not have an actual upstream service.
+				// Once the Read method is able to refresh information from
+				// the upstream service, this can be removed.
+				ImportStateVerifyIgnore: []string{"rule_content"},
+			},
+			// Update and Read testing
+			{
+				Config: testAccDetectionRuleResourceConfig(generateTestRule(), "test"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", generateTestRule()),
+				),
+			},
+			// Delete testing automatically occurs in TestCase
 		},
 	})
 
