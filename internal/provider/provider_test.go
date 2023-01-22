@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -12,15 +13,20 @@ import (
 // CLI command executed to create a provider server to which the CLI can
 // reattach.
 const (
-	providerConfig = `
+	test_host = "127.0.0.1"
+	test_post = 9999
+)
+
+var (
+	providerConfig = fmt.Sprintf(`
 provider "elastic-siem" {
   user     = "education"
   password = "test123"
-  hostname = "localhost"
-  port     = 9999
+  hostname = "%s"
+  port     = %d
   tls      = false
 }
-`
+`, test_host, test_post)
 )
 
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){

@@ -36,7 +36,7 @@ type ErrorResponse struct {
 func NewClient(input *NewClientInput) *Client {
 	publicURL := url.URL{
 		Scheme: ifThenElse(input.UseTls, "https", "http").(string),
-		Host:   input.Hostname,
+		Host:   fmt.Sprintf(`%s:%d`, input.Hostname, input.Port),
 	}
 
 	// Default
@@ -44,7 +44,7 @@ func NewClient(input *NewClientInput) *Client {
 
 	baseURL := url.URL{
 		Scheme: ifThenElse(input.UseTls, "https", "http").(string),
-		Host:   input.Hostname,
+		Host:   fmt.Sprintf(`%s:%d`, input.Hostname, input.Port),
 	}
 	baseURL.User = url.UserPassword(input.Username, input.Password)
 	return &Client{

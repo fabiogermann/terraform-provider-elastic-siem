@@ -104,17 +104,17 @@ type DetectionRule struct {
 	Setup               string        `json:"setup,omitempty"`
 }
 
-func extractRuleFronYAMLStrgin(ctx context.Context, yamlString string) (*DetectionRule, error) {
+func extractRuleFronJSONStrging(ctx context.Context, yamlString string) (*DetectionRule, error) {
 	result := DetectionRule{}
 	tflog.Debug(ctx, yamlString)
 	s, err := strconv.Unquote(yamlString)
 	if err != nil {
-		tflog.Error(ctx, "Error in extractRuleFronYAMLStrgin (0)")
+		tflog.Error(ctx, "Error in extractRuleFronJSONStrging (0)")
 		return nil, err
 	}
 	err = json.Unmarshal([]byte(s), &result)
 	if err != nil {
-		tflog.Error(ctx, "Error in extractRuleFronYAMLStrgin (1)")
+		tflog.Error(ctx, "Error in extractRuleFronJSONStrging (1)")
 		return nil, err
 	}
 	tflog.Debug(ctx, result.Name)
@@ -178,7 +178,7 @@ func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Process the rule content
-	body, err := extractRuleFronYAMLStrgin(ctx, data.RuleContent.String())
+	body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.String())
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
@@ -232,7 +232,7 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Process the rule content
-	body, err := extractRuleFronYAMLStrgin(ctx, data.RuleContent.String())
+	body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.String())
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
