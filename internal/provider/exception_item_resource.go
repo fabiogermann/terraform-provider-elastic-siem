@@ -2,19 +2,15 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"strconv"
-	"terraform-provider-elastic-siem/internal/helpers"
-	"time"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"terraform-provider-elastic-siem/internal/helpers"
+	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces
@@ -34,67 +30,6 @@ type ExceptionItemResource struct {
 type ExceptionItemResourceModel struct {
 	RuleContent types.String `tfsdk:"exception_item_content"`
 	Id          types.String `tfsdk:"id"`
-}
-
-type ExceptionItemResponse struct {
-	ExceptionItemBase
-	HTags        []interface{}               `json:"_tags,omitempty"`
-	Comments     []ExceptionCommentsResponse `json:"comments,omitempty"`
-	CreatedAt    time.Time                   `json:"created_at,omitempty"`
-	CreatedBy    string                      `json:"created_by,omitempty"`
-	TieBreakerID string                      `json:"tie_breaker_id,omitempty"`
-	UpdatedAt    time.Time                   `json:"updated_a,omitemptyt"`
-	UpdatedBy    string                      `json:"updated_by,omitempty"`
-}
-
-type ExceptionComments struct {
-	Comment string `json:"comment,omitempty"`
-}
-
-type ExceptionCommentsResponse struct {
-	ExceptionComments
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	CreatedBy string    `json:"created_by,omitempty"`
-	ID        string    `json:"id,omitempty"`
-}
-
-type ExceptionItemBase struct {
-	Description string `json:"description,omitempty"`
-	Entries     []struct {
-		Field    string `json:"field,omitempty"`
-		Operator string `json:"operator,omitempty"`
-		Type     string `json:"type,omitempty"`
-		Value    string `json:"value,omitempty"`
-	} `json:"entries,omitempty"`
-	ID            string   `json:"id,omitempty"`
-	ListID        string   `json:"list_id,omitempty"`
-	ItemID        string   `json:"item_id,omitempty"`
-	Name          string   `json:"name,omitempty"`
-	NamespaceType string   `json:"namespace_type,omitempty"`
-	Tags          []string `json:"tags,omitempty"`
-	Type          string   `json:"type,omitempty"`
-}
-
-type ExceptionItem struct {
-	ExceptionItemBase
-	Comments []ExceptionComments `json:"comments,omitempty"`
-}
-
-func extractExceptionItemFronJSONStrging(ctx context.Context, yamlString string) (*ExceptionItem, error) {
-	result := ExceptionItem{}
-	tflog.Debug(ctx, yamlString)
-	s, err := strconv.Unquote(yamlString)
-	if err != nil {
-		tflog.Error(ctx, "Error in extractExceptionItemFronJSONStrging (0)")
-		return nil, err
-	}
-	err = json.Unmarshal([]byte(s), &result)
-	if err != nil {
-		tflog.Error(ctx, "Error in extractExceptionItemFronJSONStrging (1)")
-		return nil, err
-	}
-	tflog.Debug(ctx, result.Name)
-	return &result, nil
 }
 
 func (r *ExceptionItemResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -144,7 +79,7 @@ func (r *ExceptionItemResource) Configure(ctx context.Context, req resource.Conf
 
 func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data *ExceptionItemResourceModel
-	var body *ExceptionItem
+	var body transferobjects.ExceptionItem
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -154,14 +89,14 @@ func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Process the rule content
-	body, err := extractExceptionItemFronJSONStrging(ctx, data.RuleContent.String())
+	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
 	}
 
 	// Create the rule through API
-	var response ExceptionItemResponse
+	var response transferobjects.ExceptionItemResponse
 	if err := r.client.Post("/exception_lists/items", body, &response); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
@@ -185,8 +120,8 @@ func (r *ExceptionItemResource) Read(ctx context.Context, req resource.ReadReque
 	}
 
 	// Get the rule through the API
-	var response ExceptionItemResponse
-	path := fmt.Sprintf("/exception_lists/items?id=%s", data.Id)
+	var response transferobjects.ExceptionItemResponse
+	path := fmt.Sprintf("/exception_lists/items?id=%s", data.Id.ValueString())
 	if err := r.client.Get(path, &response); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: %s", err))
 		return
@@ -198,7 +133,7 @@ func (r *ExceptionItemResource) Read(ctx context.Context, req resource.ReadReque
 
 func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *ExceptionItemResourceModel
-	var body *ExceptionItem
+	var body *transferobjects.ExceptionItem
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -208,7 +143,7 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Process the rule content
-	body, err := extractExceptionItemFronJSONStrging(ctx, data.RuleContent.String())
+	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
@@ -217,7 +152,7 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 	body.ID = data.Id.String()
 
 	// Create the rule through API
-	var response ExceptionItemResponse
+	var response transferobjects.ExceptionItemResponse
 	if err := r.client.Put("/exception_lists/items", body, &response); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
@@ -238,7 +173,7 @@ func (r *ExceptionItemResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	// Get the rule through the API
-	path := fmt.Sprintf("/exception_lists/items?id=%s", data.Id)
+	path := fmt.Sprintf("/exception_lists/items?id=%s", data.Id.ValueString())
 	if err := r.client.Delete(path); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: %s", err))
 		return

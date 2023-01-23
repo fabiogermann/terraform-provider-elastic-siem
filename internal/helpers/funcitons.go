@@ -1,5 +1,7 @@
 package helpers
 
+import "encoding/json"
+
 func contains[K comparable](s []K, item K) bool {
 	for _, v := range s {
 		if v == item {
@@ -47,4 +49,8 @@ func Convert(i interface{}) interface{} {
 		}
 	}
 	return i
+}
+
+func ObjectFronJSON(jsonString string, result interface{}) error {
+	return json.Unmarshal([]byte(jsonString), &result)
 }

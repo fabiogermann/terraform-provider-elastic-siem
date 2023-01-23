@@ -2,9 +2,7 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"terraform-provider-elastic-siem/internal/helpers"
 	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 
@@ -33,13 +31,6 @@ type DetectionRuleResource struct {
 type DetectionRuleResourceModel struct {
 	RuleContent types.String `tfsdk:"rule_content"`
 	Id          types.String `tfsdk:"id"`
-}
-
-func extractRuleFronJSONStrging(ctx context.Context, yamlString string) (*transferobjects.DetectionRule, error) {
-	result := transferobjects.DetectionRule{}
-	tflog.Debug(ctx, yamlString)
-	err := json.Unmarshal([]byte(yamlString), &result)
-	return &result, err
 }
 
 func (r *DetectionRuleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -99,7 +90,7 @@ func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Process the rule content
-	body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.ValueString())
+	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
@@ -153,7 +144,7 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Process the rule content
-	body, err := extractRuleFronJSONStrging(ctx, data.RuleContent.ValueString())
+	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return

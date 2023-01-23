@@ -6,17 +6,18 @@ import (
 	"os"
 	"strconv"
 	"terraform-provider-elastic-siem/internal/fakeserver"
+	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func generateTestExceptionItem() string {
-	base := ExceptionItemBase{
+	base := transferobjects.ExceptionItemBase{
 		ItemID: "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
 		ID:     "testID",
 	}
-	ruleContent := ExceptionItem{
+	ruleContent := transferobjects.ExceptionItem{
 		ExceptionItemBase: base,
 	}
 	str, err := json.Marshal(ruleContent)
