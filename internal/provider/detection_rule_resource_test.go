@@ -6,13 +6,14 @@ import (
 	"os"
 	"strconv"
 	"terraform-provider-elastic-siem/internal/fakeserver"
+	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func generateTestRule() string {
-	ruleContent := DetectionRule{
+	ruleContent := transferobjects.DetectionRule{
 		RuleID: "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
 		ID:     "testID",
 	}
