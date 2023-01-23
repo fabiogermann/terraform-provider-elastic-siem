@@ -197,7 +197,7 @@ Helper function that handles sending/receiving and handling
 
 	of HTTP data in and out.
 */
-func (client *APIClient) sendRequest(method string, path string, data string) (string, error) {
+func (client *APIClient) SendRequest(method string, path string, data string) (string, error) {
 	fullURI := client.uri + path
 	var req *http.Request
 	var err error

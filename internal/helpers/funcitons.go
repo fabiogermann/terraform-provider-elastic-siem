@@ -1,6 +1,10 @@
 package helpers
 
-import "encoding/json"
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+)
 
 func contains[K comparable](s []K, item K) bool {
 	for _, v := range s {
@@ -53,4 +57,9 @@ func Convert(i interface{}) interface{} {
 
 func ObjectFronJSON(jsonString string, result interface{}) error {
 	return json.Unmarshal([]byte(jsonString), &result)
+}
+
+func Sha256String(name string) string {
+	hash := sha256.Sum256([]byte(name))
+	return hex.EncodeToString(hash[:])
 }

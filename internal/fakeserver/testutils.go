@@ -329,7 +329,7 @@ func (obj *APIObject) createObject() error {
 		postPath = fmt.Sprintf("%s?%s", obj.postPath, obj.queryString)
 	}
 
-	resultString, err := obj.apiClient.sendRequest(obj.createMethod, strings.Replace(postPath, "{id}", obj.id, -1), string(b))
+	resultString, err := obj.apiClient.SendRequest(obj.createMethod, strings.Replace(postPath, "{id}", obj.id, -1), string(b))
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func (obj *APIObject) readObject() error {
 		getPath = fmt.Sprintf("%s?%s", obj.getPath, obj.queryString)
 	}
 
-	resultString, err := obj.apiClient.sendRequest(obj.readMethod, strings.Replace(getPath, "{id}", obj.id, -1), "")
+	resultString, err := obj.apiClient.SendRequest(obj.readMethod, strings.Replace(getPath, "{id}", obj.id, -1), "")
 	if err != nil {
 		if strings.Contains(err.Error(), "unexpected response code '404'") {
 			log.Printf("api_object.go: 404 error while refreshing state for '%s' at path '%s'. Removing from state.", obj.id, obj.getPath)
@@ -429,7 +429,7 @@ func (obj *APIObject) updateObject() error {
 		putPath = fmt.Sprintf("%s?%s", obj.putPath, obj.queryString)
 	}
 
-	resultString, err := obj.apiClient.sendRequest(obj.updateMethod, strings.Replace(putPath, "{id}", obj.id, -1), string(b))
+	resultString, err := obj.apiClient.SendRequest(obj.updateMethod, strings.Replace(putPath, "{id}", obj.id, -1), string(b))
 	if err != nil {
 		return err
 	}
@@ -471,7 +471,7 @@ func (obj *APIObject) deleteObject() error {
 		b = destroyData
 	}
 
-	_, err := obj.apiClient.sendRequest(obj.destroyMethod, strings.Replace(deletePath, "{id}", obj.id, -1), string(b))
+	_, err := obj.apiClient.SendRequest(obj.destroyMethod, strings.Replace(deletePath, "{id}", obj.id, -1), string(b))
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func (obj *APIObject) findObject(queryString string, searchKey string, searchVal
 	if obj.debug {
 		log.Printf("api_object.go: Calling API on path '%s'", searchPath)
 	}
-	resultString, err := obj.apiClient.sendRequest(obj.apiClient.readMethod, searchPath, "")
+	resultString, err := obj.apiClient.SendRequest(obj.apiClient.readMethod, searchPath, "")
 	if err != nil {
 		return objFound, err
 	}
