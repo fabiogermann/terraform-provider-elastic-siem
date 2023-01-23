@@ -119,6 +119,7 @@ func (p *ElasticSiemProvider) Resources(ctx context.Context) []func() resource.R
 	return []func() resource.Resource{
 		NewDetectionRuleResource,
 		NewExceptionItemResource,
+		NewExceptionContainerResource,
 	}
 }
 

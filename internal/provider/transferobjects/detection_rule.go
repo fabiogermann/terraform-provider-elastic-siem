@@ -57,10 +57,18 @@ type MetaItem struct {
 	KibanaSiemAppURL string `json:"kibana_siem_app_url,omitempty"`
 }
 
+type ExceptionListItem struct {
+	ID            string `json:"id,omitempty"`
+	ListID        string `json:"list_id,omitempty"`
+	Type          string `json:"type,omitempty"`
+	NamespaceType string `json:"namespace_type,omitempty"`
+}
+
 type DetectionRuleResponse struct {
 	DetectionRule
 	CreatedAt        time.Time            `json:"created_at,omitempty"`
 	CreatedBy        string               `json:"created_by,omitempty"`
+	ExceptionsList   []ExceptionListItem  `json:"exceptions_list"`
 	ExecutionSummary ExecutionHistoryItem `json:"execution_summary,omitempty"`
 	Meta             MetaItem             `json:"meta,omitempty"`
 	UpdatedAt        time.Time            `json:"updated_at,omitempty"`
