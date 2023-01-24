@@ -139,6 +139,17 @@ func (svr *Fakeserver) handleAPIObject(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
+	} else if path == "/api/exception_lists" && r.Method == "GET" {
+		if svr.debug {
+			log.Printf("fakeserver.go: App request")
+		}
+		id = "generatedTestID"
+		obj = svr.objects[id]
+	} else if path == "/api/exception_lists" && (r.Method == "POST" || r.Method == "DELETE") {
+		if svr.debug {
+			log.Printf("fakeserver.go: App request")
+		}
+		id = "generatedTestID"
 	} else if path == "/api/object_list" && r.Method == "GET" {
 		/* Provide a URL similar to /api/objects that will also show the number of results
 		   as if a search was performed (which just returns all objects */
@@ -215,6 +226,12 @@ func (svr *Fakeserver) handleAPIObject(w http.ResponseWriter, r *http.Request) {
 		/* Overwrite our stored test object */
 		if svr.debug {
 			log.Printf("fakeserver.go: Overwriting %s with new data:%+v\n", id, obj)
+		}
+		if path == "/api/exception_lists" && (r.Method == "POST" || r.Method == "DELETE") {
+			if svr.debug {
+				log.Printf("fakeserver.go: Inserting id to response")
+			}
+			obj["id"] = id
 		}
 		svr.objects[id] = obj
 

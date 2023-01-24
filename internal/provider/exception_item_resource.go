@@ -106,7 +106,7 @@ func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateR
 
 	// Create the rule through API
 	var response transferobjects.ExceptionItemResponse
-	if err := r.client.Post("/exception_lists/items", body, &response); err != nil {
+	if err := r.client.Post("/exception_lists/items", body, &response, []string{}); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}
@@ -165,7 +165,7 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 
 	// Create the rule through API
 	var response transferobjects.ExceptionItemResponse
-	if err := r.client.Put("/exception_lists/items", body, &response); err != nil {
+	if err := r.client.Put("/exception_lists/items", body, &response, []string{}); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}

@@ -19,6 +19,10 @@ Exception item resource
 
 - `exception_item_content` (String) The content of the exception item (JSON encoded string)
 
+### Optional
+
+- `list_id_override` (String) The list ID that should be used for the item (overrides id in exception_item_content)
+
 ### Read-Only
 
 - `id` (String) Exception item identifier (in UUID format)

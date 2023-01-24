@@ -81,6 +81,7 @@ func (r *DetectionRuleResource) Configure(ctx context.Context, req resource.Conf
 func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var data *DetectionRuleResourceModel
 	var body *transferobjects.DetectionRule
+	var itemsToRemote []string
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -96,9 +97,13 @@ func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
+	if len(body.Threshold.Field) == 0 {
+		itemsToRemote = append(itemsToRemote, "threshold")
+	}
+
 	// Create the rule through API
 	var response transferobjects.DetectionRuleResponse
-	if err := r.client.Post("/detection_engine/rules", body, &response); err != nil {
+	if err := r.client.Post("/detection_engine/rules", body, &response, itemsToRemote); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}
@@ -135,6 +140,7 @@ func (r *DetectionRuleResource) Read(ctx context.Context, req resource.ReadReque
 func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var data *DetectionRuleResourceModel
 	var body *transferobjects.DetectionRule
+	var itemsToRemote []string
 
 	// Read Terraform plan data into the model
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
@@ -150,11 +156,15 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
+	if len(body.Threshold.Field) == 0 {
+		itemsToRemote = append(itemsToRemote, "threshold")
+	}
+
 	body.ID = data.Id.ValueString()
 
 	// Create the rule through API
 	var response transferobjects.DetectionRuleResponse
-	if err := r.client.Put("/detection_engine/rules", body, &response); err != nil {
+	if err := r.client.Put("/detection_engine/rules", body, &response, itemsToRemote); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}

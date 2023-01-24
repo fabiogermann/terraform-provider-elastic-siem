@@ -81,8 +81,15 @@ func (c *Client) Delete(path string) error {
 }
 
 // Post uses the client to send a POST request
-func (c *Client) Post(path string, body interface{}, result interface{}) error {
-	b, err := JsonBytesBuffer(body)
+func (c *Client) Post(path string, body interface{}, result interface{}, itemsToRemove []string) error {
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	if itemsToRemove != nil && len(itemsToRemove) > 0 {
+		RemoveKeysFromJSONObjectBytes(&bodyBytes, itemsToRemove)
+	}
+	b := bytes.NewBuffer(bodyBytes)
 	if err != nil {
 		return err
 	}
@@ -90,8 +97,15 @@ func (c *Client) Post(path string, body interface{}, result interface{}) error {
 }
 
 // Put uses the client to send a PUT request
-func (c *Client) Put(path string, body interface{}, result interface{}) error {
-	b, err := JsonBytesBuffer(body)
+func (c *Client) Put(path string, body interface{}, result interface{}, itemsToRemove []string) error {
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+	if itemsToRemove != nil && len(itemsToRemove) > 0 {
+		RemoveKeysFromJSONObjectBytes(&bodyBytes, itemsToRemove)
+	}
+	b := bytes.NewBuffer(bodyBytes)
 	if err != nil {
 		return err
 	}

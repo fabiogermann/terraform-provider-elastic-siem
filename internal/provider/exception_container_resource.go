@@ -137,7 +137,7 @@ func (r *ExceptionContainerResource) Create(ctx context.Context, req resource.Cr
 
 	// Create the rule through API
 	var response transferobjects.ExceptionContainerResponse
-	if err := r.client.Post("/exception_lists", body, &response); err != nil {
+	if err := r.client.Post("/exception_lists", body, &response, []string{}); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}
@@ -201,7 +201,7 @@ func (r *ExceptionContainerResource) Update(ctx context.Context, req resource.Up
 
 	// Create the rule through API
 	var response transferobjects.ExceptionContainerResponse
-	if err := r.client.Put("/exception_lists", body, &response); err != nil {
+	if err := r.client.Put("/exception_lists", body, &response, []string{}); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Error during request, got error: \n%s", err))
 		return
 	}
