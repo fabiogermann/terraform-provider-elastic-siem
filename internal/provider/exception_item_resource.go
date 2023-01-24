@@ -28,8 +28,9 @@ type ExceptionItemResource struct {
 
 // ExceptionItemResourceModel describes the resource data model.
 type ExceptionItemResourceModel struct {
-	RuleContent types.String `tfsdk:"exception_item_content"`
-	Id          types.String `tfsdk:"id"`
+	RuleContent    types.String `tfsdk:"exception_item_content"`
+	ListIdOverride types.String `tfsdk:"list_id_override"`
+	Id             types.String `tfsdk:"id"`
 }
 
 func (r *ExceptionItemResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -45,6 +46,10 @@ func (r *ExceptionItemResource) Schema(ctx context.Context, req resource.SchemaR
 			"exception_item_content": schema.StringAttribute{
 				MarkdownDescription: "The content of the exception item (JSON encoded string)",
 				Required:            true,
+			},
+			"list_id_override": schema.StringAttribute{
+				MarkdownDescription: "The list ID that should be used for the item (overrides id in exception_item_content)",
+				Optional:            true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -93,6 +98,10 @@ func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateR
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
+	}
+
+	if !data.ListIdOverride.IsNull() {
+		body.ListID = data.ListIdOverride.ValueString()
 	}
 
 	// Create the rule through API
@@ -150,6 +159,9 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	body.ID = data.Id.String()
+	if !data.ListIdOverride.IsNull() {
+		body.ListID = data.ListIdOverride.ValueString()
+	}
 
 	// Create the rule through API
 	var response transferobjects.ExceptionItemResponse
