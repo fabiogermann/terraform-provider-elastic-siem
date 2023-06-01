@@ -1,3 +1,4 @@
-## 0.1.0 (Unreleased)
+## 0.0.5 (01 JUNE 2023)
 
-FEATURES:
+FIXES:
+- Issue resolved when updating a detection rules having a 'rule_id' present
