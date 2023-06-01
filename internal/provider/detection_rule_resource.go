@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"terraform-provider-elastic-siem/internal/helpers"
 	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 
@@ -161,7 +160,9 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 		itemsToRemote = append(itemsToRemote, "threshold")
 	}
 
-	if !reflect.ValueOf(body).FieldByName("RuleID").IsValid() { body.ID = data.Id.ValueString() }
+	if !helpers.CheckIfKeyExists(body, "rule_id") {
+		body.ID = data.Id.ValueString()
+	}
 
 	// Create the rule through API
 	var response transferobjects.DetectionRuleResponse

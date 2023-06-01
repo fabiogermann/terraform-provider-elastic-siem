@@ -128,3 +128,14 @@ func MapFuncToJsonObjectArrayBytes(fn func(input *map[string]json.RawMessage) er
 func MapFuncToJsonObjectArray(fn func(input *map[string]json.RawMessage) error, jsonArray *[]map[string]json.RawMessage) error {
 	return mapFuncToJsonObjectArray(fn, jsonArray)
 }
+
+func CheckIfKeyExists(values interface{}, key string) bool {
+	var values_map map[string]interface{}
+	data, _ := json.Marshal(values)
+	err := json.Unmarshal(data, &values_map)
+	if err != nil {
+		return false
+	}
+	_, ok := values_map[key]
+	return ok
+}
