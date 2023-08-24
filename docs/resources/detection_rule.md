@@ -19,6 +19,12 @@ Detection rule resource
 
 - `rule_content` (String) The content of the rule (JSON encoded string)
 
+### Optional
+
+- `exception_container_id` (String) The container ID that should be used for exceptions for this item (overrides id in rule_content)
+- `exception_container_list_id` (String) The container list ID that should be used for exceptions for this item (overrides id in rule_content)
+- `exception_type` (String) The type that should be used for exceptions for this item (defaults to `detection`)
+
 ### Read-Only
 
 - `id` (String) Rule identifier (in UUID format)

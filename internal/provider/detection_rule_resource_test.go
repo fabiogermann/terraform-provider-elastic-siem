@@ -16,6 +16,7 @@ func generateTestRule() string {
 	ruleContent := transferobjects.DetectionRule{
 		RuleID: "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
 		ID:     "testID",
+		Type:   "detection",
 	}
 	str, err := json.Marshal(ruleContent)
 	if err != nil {
@@ -65,6 +66,7 @@ func TestAccDetectionRuleResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					fakeserver.TestAccCheckRestapiObjectExists("elastic-siem_detection_rule.test", "id", client),
 					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", generateTestRule()),
+					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "exception_type", "detection"),
 				),
 			},
 			// ImportState testing
@@ -76,13 +78,14 @@ func TestAccDetectionRuleResource(t *testing.T) {
 				// example code does not have an actual upstream service.
 				// Once the Read method is able to refresh information from
 				// the upstream service, this can be removed.
-				ImportStateVerifyIgnore: []string{"rule_content"},
+				ImportStateVerifyIgnore: []string{"rule_content", "exception_type"},
 			},
 			// Update and Read testing
 			{
 				Config: testAccDetectionRuleResourceConfig(generateTestRule(), "test"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", generateTestRule()),
+					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "exception_type", "detection"),
 				),
 			},
 			// Delete testing automatically occurs in TestCase
@@ -96,6 +99,7 @@ func testAccDetectionRuleResourceConfig(ruleContent string, name string) string 
 	content := strconv.Quote(string(ruleContent))
 	return fmt.Sprintf(`%s
 resource "elastic-siem_detection_rule" "%s" {
+  exception_type = "detection"
   rule_content = %s
 }
 `, providerConfig, name, content)

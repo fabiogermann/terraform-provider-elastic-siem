@@ -28,9 +28,9 @@ type ExceptionItemResource struct {
 
 // ExceptionItemResourceModel describes the resource data model.
 type ExceptionItemResourceModel struct {
-	RuleContent    types.String `tfsdk:"exception_item_content"`
-	ListIdOverride types.String `tfsdk:"list_id_override"`
-	Id             types.String `tfsdk:"id"`
+	ExceptionContent types.String `tfsdk:"exception_item_content"`
+	ListIdOverride   types.String `tfsdk:"list_id_override"`
+	Id               types.String `tfsdk:"id"`
 }
 
 func (r *ExceptionItemResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,7 +94,7 @@ func (r *ExceptionItemResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	// Process the rule content
-	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
+	err := helpers.ObjectFronJSON(data.ExceptionContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
@@ -152,16 +152,13 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	// Process the rule content
-	err := helpers.ObjectFronJSON(data.RuleContent.ValueString(), &body)
+	err := helpers.ObjectFronJSON(data.ExceptionContent.ValueString(), &body)
 	if err != nil {
 		resp.Diagnostics.AddError("Parser Error", fmt.Sprintf("Unable to parse file, got error: %s", err))
 		return
 	}
 
 	body.ID = data.Id.String()
-	if !data.ListIdOverride.IsNull() {
-		body.ListID = data.ListIdOverride.ValueString()
-	}
 
 	// Create the rule through API
 	var response transferobjects.ExceptionItemResponse

@@ -3,6 +3,9 @@ package provider
 import (
 	"context"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"terraform-provider-elastic-siem/internal/helpers"
 	"terraform-provider-elastic-siem/internal/provider/transferobjects"
 
@@ -29,8 +32,11 @@ type DetectionRuleResource struct {
 
 // DetectionRuleResourceModel describes the resource data model.
 type DetectionRuleResourceModel struct {
-	RuleContent types.String `tfsdk:"rule_content"`
-	Id          types.String `tfsdk:"id"`
+	RuleContent              types.String `tfsdk:"rule_content"`
+	ExceptionContainerId     types.String `tfsdk:"exception_container_id"`
+	ExceptionContainerListId types.String `tfsdk:"exception_container_list_id"`
+	ExceptionType            types.String `tfsdk:"exception_type"`
+	Id                       types.String `tfsdk:"id"`
 }
 
 func (r *DetectionRuleResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -46,6 +52,21 @@ func (r *DetectionRuleResource) Schema(ctx context.Context, req resource.SchemaR
 			"rule_content": schema.StringAttribute{
 				MarkdownDescription: "The content of the rule (JSON encoded string)",
 				Required:            true,
+			},
+			"exception_container_id": schema.StringAttribute{
+				MarkdownDescription: "The container ID that should be used for exceptions for this item (overrides id in rule_content)",
+				Optional:            true,
+			},
+			"exception_container_list_id": schema.StringAttribute{
+				MarkdownDescription: "The container list ID that should be used for exceptions for this item (overrides id in rule_content)",
+				Optional:            true,
+			},
+			"exception_type": schema.StringAttribute{
+				MarkdownDescription: "The type that should be used for exceptions for this item (defaults to `detection`)",
+				Optional:            true,
+				Computed:            true,
+				Default:             stringdefault.StaticString("detection"),
+				Validators:          []validator.String{stringvalidator.OneOf("detection", "endpoint")},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -99,6 +120,16 @@ func (r *DetectionRuleResource) Create(ctx context.Context, req resource.CreateR
 
 	if len(body.Threshold.Field) == 0 {
 		itemsToRemote = append(itemsToRemote, "threshold")
+	}
+
+	if !data.ExceptionContainerId.IsNull() && !data.ExceptionContainerListId.IsNull() && !data.ExceptionType.IsNull() {
+		var exceptionListItem transferobjects.ExceptionListItem
+		exceptionListItem.ListID = data.ExceptionContainerListId.ValueString()
+		exceptionListItem.ID = data.ExceptionContainerId.ValueString()
+		exceptionListItem.NamespaceType = "single"
+		exceptionListItem.Type = data.ExceptionType.ValueString()
+
+		body.ExceptionsList = append(body.ExceptionsList, exceptionListItem)
 	}
 
 	// Create the rule through API
