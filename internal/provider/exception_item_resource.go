@@ -158,7 +158,7 @@ func (r *ExceptionItemResource) Update(ctx context.Context, req resource.UpdateR
 		return
 	}
 
-	body.ID = data.Id.String()
+	body.ID = data.Id.ValueString()
 
 	// Create the rule through API
 	var response transferobjects.ExceptionItemResponse
