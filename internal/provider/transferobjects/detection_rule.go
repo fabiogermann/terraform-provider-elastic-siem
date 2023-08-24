@@ -117,7 +117,7 @@ type DetectionRule struct {
 	Description         string              `json:"description,omitempty"`
 	Enabled             bool                `json:"enabled,omitempty"`
 	EventCategoryField  string              `json:"event_category_field,omitempty"`
-	ExceptionsList      []ExceptionListItem `json:"exceptions_list"`
+	ExceptionsList      []ExceptionListItem `json:"exceptions_list,omitempty"`
 	FalsePositives      []interface{}       `json:"false_positives,omitempty"`
 	Filters             []interface{}       `json:"filters,omitempty"`
 	From                string              `json:"from,omitempty"`

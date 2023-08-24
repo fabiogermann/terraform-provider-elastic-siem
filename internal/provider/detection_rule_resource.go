@@ -191,6 +191,16 @@ func (r *DetectionRuleResource) Update(ctx context.Context, req resource.UpdateR
 		itemsToRemote = append(itemsToRemote, "threshold")
 	}
 
+	if !data.ExceptionContainerId.IsNull() && !data.ExceptionContainerListId.IsNull() && !data.ExceptionType.IsNull() {
+		var exceptionListItem transferobjects.ExceptionListItem
+		exceptionListItem.ListID = data.ExceptionContainerListId.ValueString()
+		exceptionListItem.ID = data.ExceptionContainerId.ValueString()
+		exceptionListItem.NamespaceType = "single"
+		exceptionListItem.Type = data.ExceptionType.ValueString()
+
+		body.ExceptionsList = append(body.ExceptionsList, exceptionListItem)
+	}
+
 	if !helpers.CheckIfKeyExists(body, "rule_id") {
 		body.ID = data.Id.ValueString()
 	}
