@@ -1,6 +1,6 @@
 module terraform-provider-elastic-siem
 
-go 1.19
+go 1.22
 
 require (
 	github.com/davecgh/go-spew v1.1.1
