@@ -30,5 +30,3 @@ Exception container resource
 ### Read-Only
 
 - `id` (String) Exception container identifier (in UUID format)
-
-

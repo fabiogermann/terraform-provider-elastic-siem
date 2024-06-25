@@ -26,5 +26,3 @@ Exception item resource
 ### Read-Only
 
 - `id` (String) Exception item identifier (in UUID format)
-
-

@@ -28,5 +28,3 @@ Detection rule resource
 ### Read-Only
 
 - `id` (String) Rule identifier (in UUID format)
-
-
