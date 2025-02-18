@@ -10,13 +10,22 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 func generateTestRule() string {
+	scoreMapping := []transferobjects.RiskScoreMapping{
+		{
+			Field:    "risk.calculated_score_norm",
+			Operator: "equals",
+			Value:    "",
+		},
+	}
 	ruleContent := transferobjects.DetectionRule{
-		RuleID: "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
-		ID:     "testID",
-		Type:   "detection",
+		RuleID:           "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
+		ID:               "testID",
+		Type:             "detection",
+		RiskScoreMapping: scoreMapping,
 	}
 	str, err := json.Marshal(ruleContent)
 	if err != nil {
@@ -67,6 +76,28 @@ func TestAccDetectionRuleResource(t *testing.T) {
 					fakeserver.TestAccCheckRestapiObjectExists("elastic-siem_detection_rule.test", "id", client),
 					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "rule_content", generateTestRule()),
 					resource.TestCheckResourceAttr("elastic-siem_detection_rule.test", "exception_type", "detection"),
+					resource.ComposeTestCheckFunc(
+						func(s *terraform.State) error {
+							// Check if risk_score_mapping.0.value was preserved as empty string
+							//apiServerObjects["rules"]["risk_score_mapping"].([]interface{})[0].(map[string]interface{})["value"]
+							mappings, ok := apiServerObjects["rules"]["risk_score_mapping"].([]interface{})
+							if !ok || len(mappings) == 0 {
+								return fmt.Errorf("risk_score_mapping not found in request")
+							}
+
+							mapping := mappings[0].(map[string]interface{})
+							value, exists := mapping["value"]
+							if !exists {
+								return fmt.Errorf("value field not found in risk_score_mapping")
+							}
+
+							if value != "" {
+								return fmt.Errorf("expected empty string for value, got %v", value)
+							}
+
+							return nil
+						},
+					),
 				),
 			},
 			// ImportState testing
