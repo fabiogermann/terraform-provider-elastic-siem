@@ -1,6 +1,9 @@
 package transferobjects
 
-import "time"
+import (
+	"terraform-provider-elastic-siem/tools"
+	"time"
+)
 
 type ExceptionItemResponse struct {
 	ExceptionItemBase
@@ -25,10 +28,10 @@ type ExceptionCommentsResponse struct {
 }
 
 type ExceptionItemEntry struct {
-	Field    string   `json:"field,omitempty"`
-	Operator string   `json:"operator,omitempty"`
-	Type     string   `json:"type,omitempty"`
-	Value    []string `json:"value,omitempty"`
+	Field    string            `json:"field,omitempty"`
+	Operator string            `json:"operator,omitempty"`
+	Type     string            `json:"type,omitempty"`
+	Value    tools.StringSlice `json:"value,omitempty"`
 }
 
 type ExceptionItemBase struct {
