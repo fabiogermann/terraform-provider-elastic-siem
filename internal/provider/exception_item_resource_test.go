@@ -16,6 +16,9 @@ func generateTestExceptionItem() string {
 	base := transferobjects.ExceptionItemBase{
 		ItemID: "7CE764F6-36A7-4E72-AB8B-166170CD1C93",
 		ID:     "testID",
+		Entries: []transferobjects.ExceptionItemEntry{
+			{Field: "user.email", Operator: "included", Type: "match", Value: []string{"test", "1234asdf"}},
+		},
 	}
 	ruleContent := transferobjects.ExceptionItem{
 		ExceptionItemBase: base,

@@ -24,21 +24,23 @@ type ExceptionCommentsResponse struct {
 	ID        string    `json:"id,omitempty"`
 }
 
+type ExceptionItemEntry struct {
+	Field    string   `json:"field,omitempty"`
+	Operator string   `json:"operator,omitempty"`
+	Type     string   `json:"type,omitempty"`
+	Value    []string `json:"value,omitempty"`
+}
+
 type ExceptionItemBase struct {
-	Description string `json:"description,omitempty"`
-	Entries     []struct {
-		Field    string   `json:"field,omitempty"`
-		Operator string   `json:"operator,omitempty"`
-		Type     string   `json:"type,omitempty"`
-		Value    []string `json:"value,omitempty"`
-	} `json:"entries,omitempty"`
-	ID            string   `json:"id,omitempty"`
-	ListID        string   `json:"list_id,omitempty"`
-	ItemID        string   `json:"item_id,omitempty"`
-	Name          string   `json:"name,omitempty"`
-	NamespaceType string   `json:"namespace_type,omitempty"`
-	Tags          []string `json:"tags,omitempty"`
-	Type          string   `json:"type,omitempty"`
+	Description   string               `json:"description,omitempty"`
+	Entries       []ExceptionItemEntry `json:"entries,omitempty"`
+	ID            string               `json:"id,omitempty"`
+	ListID        string               `json:"list_id,omitempty"`
+	ItemID        string               `json:"item_id,omitempty"`
+	Name          string               `json:"name,omitempty"`
+	NamespaceType string               `json:"namespace_type,omitempty"`
+	Tags          []string             `json:"tags,omitempty"`
+	Type          string               `json:"type,omitempty"`
 }
 
 type ExceptionItem struct {
