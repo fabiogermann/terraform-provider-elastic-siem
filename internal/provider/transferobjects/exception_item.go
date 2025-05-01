@@ -27,10 +27,10 @@ type ExceptionCommentsResponse struct {
 type ExceptionItemBase struct {
 	Description string `json:"description,omitempty"`
 	Entries     []struct {
-		Field    string `json:"field,omitempty"`
-		Operator string `json:"operator,omitempty"`
-		Type     string `json:"type,omitempty"`
-		Value    string `json:"value,omitempty"`
+		Field    string   `json:"field,omitempty"`
+		Operator string   `json:"operator,omitempty"`
+		Type     string   `json:"type,omitempty"`
+		Value    []string `json:"value,omitempty"`
 	} `json:"entries,omitempty"`
 	ID            string   `json:"id,omitempty"`
 	ListID        string   `json:"list_id,omitempty"`
